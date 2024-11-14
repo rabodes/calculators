@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redeem Abodes - Real Estate Investment Calculator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .info-link {
+            color: #3b82f6;
+            text-decoration: underline;
+            margin-left: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .info-link:hover {
+            color: #2563eb;
+        }
+        .metric-row {
+            display: flex;
+            align-items: center;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-6">
+    <div class="max-w-6xl mx-auto bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold mb-6">Redeem Abodes - Investment Calculator 
+            <a href="https://www.investopedia.com/terms/r/realestate.asp" target="_blank" class="info-link">About Real Estate Investment</a>
+        </h1>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Property Information</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Property Address</label>
+                        <input type="string" id="propertyAddress" placeholder="Property Address" class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Market Value</label>
+                        <input type="number" id="marketValue" placeholder="Market Value" class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Purchase Price</label>
+                        <input type="number" id="purchasePrice" placeholder="Purchase Price" class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Interest Rate (%)</label>
+                        <input type="number" id="interestRate" placeholder="Interest Rate %" value="7.000" step="0.001" class="w-full p-2 border rounded mb-4">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Lenders Fees</label>
+                        <input type="number" id="lendersFees" placeholder="Lenders Fees" value="3700" class="w-full p-2 border rounded">
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-lg font-semibold mb-4">Operating Costs</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Monthly Rent</label>
+                        <input type="number" id="rentMonthly" placeholder="Monthly Rent" class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Annual HOA</label>
+                        <input type="number" id="hoaAnnual" placeholder="Annual HOA" class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Annual Property Tax</label>
+                        <input type="number" id="propertyTaxAnnual" placeholder="Annual Property Tax" class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Annual Property Insurance</label>
+                        <input type="number" id="propertyInsAnnual" placeholder="Annual Property Insurance" class="w-full p-2 border rounded">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Repairs/Make-Ready Cost</label>
+                        <input type="number" id="repairsCost" placeholder="Repairs/Make-Ready Cost" class="w-full p-2 border rounded">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 space-x-4">
+            <button onclick="calculator.calculateResults()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Calculate</button>
+            <button onclick="calculator.downloadResults()" id="downloadBtn" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden">Download CSV</button>
+        </div>
+
+        <div id="results" class="mt-8 hidden">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Conventional Financing -->
+                <div class="border p-4 rounded">
+                    <h2 class="text-xl font-bold mb-4">
+                        Conventional Financing
+                        <a href="https://www.investopedia.com/terms/c/conventionalmortgage.asp" target="_blank" class="info-link">Learn More</a>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h3 class="font-semibold mb-2">Mortgage Information</h3>
+                            <div id="conventionalMortgageInfo" class="space-y-1"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">Monthly Cash Flow</h3>
+                            <div id="conventionalCashFlow" class="space-y-1"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">Returns</h3>
+                            <div id="conventionalReturns" class="space-y-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cash Purchase -->
+                <div class="border p-4 rounded">
+                    <h2 class="text-xl font-bold mb-4">
+                        Cash Purchase
+                        <a href="https://www.investopedia.com/terms/c/cash-purchase.asp" target="_blank" class="info-link">Learn More</a>
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <h3 class="font-semibold mb-2">Purchase Information</h3>
+                            <div id="cashMortgageInfo" class="space-y-1"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">Monthly Cash Flow</h3>
+                            <div id="cashCashFlow" class="space-y-1"></div>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold mb-2">Returns</h3>
+                            <div id="cashReturns" class="space-y-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operating Costs Breakdown -->
+            <div class="mt-6">
+                <h3 class="font-semibold mb-2">
+                    Operating Costs Breakdown
+                    <a href="https://www.investopedia.com/terms/o/operating-cost.asp" target="_blank" class="info-link">Learn More</a>
+                </h3>
+                <div id="operatingCostsBreakdown"></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+const calculator = {
+    initialize() {
+        console.log("Calculator initialized");
+    },
+
+    getFormData() {
+        const data = {
+            marketValue: parseFloat(document.getElementById('marketValue').value) || 0,
+            purchasePrice: parseFloat(document.getElementById('purchasePrice').value) || 0,
+            interestRate: parseFloat(document.getElementById('interestRate').value) || 7,
+            lendersFees: parseFloat(document.getElementById('lendersFees').value) || 3700,
+            rentMonthly: parseFloat(document.getElementById('rentMonthly').value) || 0,
+            hoaAnnual: parseFloat(document.getElementById('hoaAnnual').value) || 0,
+            propertyTaxAnnual: parseFloat(document.getElementById('propertyTaxAnnual').value) || 0,
+            propertyInsAnnual: parseFloat(document.getElementById('propertyInsAnnual').value) || 0,
+            repairsCost: parseFloat(document.getElementById('repairsCost').value) || 0
+        };
+        console.log("Form data:", data);
+        return data;
+    },
+
+    calculateMonthlyMortgage(principal, annualRate, years) {
+        const monthlyRate = (annualRate / 100) / 12;
+        const numberOfPayments = years * 12;
+        return principal * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments)) / 
+            (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
+    },
+
+    calculateOperatingCosts(data, rentAmount) {
+        return {
+            vacancy: rentAmount * 0.05,
+            maintenance: rentAmount * 0.08,
+            propertyTax: data.propertyTaxAnnual / 12,
+            propertyIns: data.propertyInsAnnual / 12,
+            hoa: data.hoaAnnual / 12
+        };
+    },
+
+    calculateResults() {
+        console.log("Calculating results...");
+        const data = this.getFormData();
+        
+        if (!data.purchasePrice || !data.rentMonthly) {
+            alert('Please enter at least Purchase Price and Monthly Rent');
+            return;
+        }
+
+        const operatingCosts = this.calculateOperatingCosts(data, data.rentMonthly);
+        const totalMonthlyOperatingCosts = Object.values(operatingCosts).reduce((a, b) => a + b, 0);
+
+        // Calculate total investment components
+        const closingCosts = data.purchasePrice * 0.02; // 2% closing costs
+        const appraisalFee = 650;
+        const inspectionCost = 500;
+        const totalInvestment = data.purchasePrice + data.lendersFees + closingCosts + 
+                               appraisalFee + inspectionCost + data.repairsCost;
+
+        // Conventional Financing Calculations
+        const conventionalDownPayment = data.purchasePrice * 0.30;
+        const conventionalMortgage = data.purchasePrice - conventionalDownPayment;
+        const conventionalMonthlyMortgage = this.calculateMonthlyMortgage(conventionalMortgage, data.interestRate, 30);
+        const conventionalMonthlyCashFlow = data.rentMonthly - conventionalMonthlyMortgage - totalMonthlyOperatingCosts;
+
+        // Cash Purchase Calculations
+        const cashMonthlyCashFlow = data.rentMonthly - totalMonthlyOperatingCosts;
+        const unrealizedCapitalGain = data.marketValue - totalInvestment; // Updated to use total investment
+
+        this.results = {
+            conventional: {
+                mortgageInfo: {
+                    purchasePrice: data.purchasePrice,
+                    downPayment: conventionalDownPayment,
+                    totalMortgage: conventionalMortgage,
+                    totalInvestment: totalInvestment // Added total investment
+                },
+                cashFlow: {
+                    monthlyRent: data.rentMonthly,
+                    monthlyMortgage: conventionalMonthlyMortgage,
+                    operatingCosts,
+                    totalMonthly: conventionalMonthlyCashFlow
+                },
+                gains: {
+                    unrealizedCapitalGain,
+                    annualCashFlow: conventionalMonthlyCashFlow * 12,
+                    returnOnCapitalGain: (unrealizedCapitalGain / data.purchasePrice) * 100,
+                    cashOnCashReturn: (conventionalMonthlyCashFlow * 12 / conventionalDownPayment) * 100
+                }
+            },
+            cash: {
+                mortgageInfo: {
+                    purchasePrice: data.purchasePrice,
+                    totalInvestment: totalInvestment // Updated to use new total investment calculation
+                },
+                cashFlow: {
+                    monthlyRent: data.rentMonthly,
+                    operatingCosts,
+                    totalMonthly: cashMonthlyCashFlow
+                },
+                gains: {
+                    unrealizedCapitalGain,
+                    annualCashFlow: cashMonthlyCashFlow * 12,
+                    returnOnCapitalGain: (unrealizedCapitalGain / data.purchasePrice) * 100,
+                    cashOnCashReturn: (cashMonthlyCashFlow * 12 / data.purchasePrice) * 100
+                }
+            }
+        };
+
+        this.displayResults();
+    },
+
+    displayResults() {
+        console.log("Displaying results...");
+        document.getElementById('results').classList.remove('hidden');
+        document.getElementById('downloadBtn').classList.remove('hidden');
+
+        // Conventional Results
+        document.getElementById('conventionalMortgageInfo').innerHTML = `
+            <p>Purchase Price: $${this.results.conventional.mortgageInfo.purchasePrice.toLocaleString()}</p>
+            <p>Down Payment: $${this.results.conventional.mortgageInfo.downPayment.toLocaleString()}</p>
+            <p>Total Mortgage: $${this.results.conventional.mortgageInfo.totalMortgage.toLocaleString()}</p>
+        `;
+
+        document.getElementById('conventionalCashFlow').innerHTML = `
+            <p>Rent: $${this.results.conventional.cashFlow.monthlyRent.toLocaleString()}</p>
+            <p>Mortgage: $${this.results.conventional.cashFlow.monthlyMortgage.toFixed(2)}</p>
+            <p>Operating Costs: $${Object.values(this.results.conventional.cashFlow.operatingCosts)
+                .reduce((a, b) => a + b, 0).toFixed(2)}</p>
+            <p>Net Cash Flow: $${this.results.conventional.cashFlow.totalMonthly.toFixed(2)}</p>
+        `;
+
+        document.getElementById('conventionalReturns').innerHTML = `
+            <p>Capital Gain: $${this.results.conventional.gains.unrealizedCapitalGain.toLocaleString()}</p>
+            <p>Annual Cash Flow: $${this.results.conventional.gains.annualCashFlow.toFixed(2)}</p>
+            <p>ROI: ${this.results.conventional.gains.returnOnCapitalGain.toFixed(2)}%</p>
+            <p>Cash-on-Cash: ${this.results.conventional.gains.cashOnCashReturn.toFixed(2)}%</p>
+        `;
+
+        // Cash Purchase Results
+        document.getElementById('cashMortgageInfo').innerHTML = `
+            <p>Purchase Price: $${this.results.cash.mortgageInfo.purchasePrice.toLocaleString()}</p>
+            <p>Total Investment: $${this.results.cash.mortgageInfo.totalInvestment.toLocaleString()}</p>
+        `;
+
+        document.getElementById('cashCashFlow').innerHTML = `
+            <p>Rent: $${this.results.cash.cashFlow.monthlyRent.toLocaleString()}</p>
+            <p>Operating Costs: $${Object.values(this.results.cash.cashFlow.operatingCosts)
+                .reduce((a, b) => a + b, 0).toFixed(2)}</p>
+<p>Net Cash Flow: $${this.results.cash.cashFlow.totalMonthly.toFixed(2)}</p>
+        `;
+
+        document.getElementById('cashReturns').innerHTML = `
+            <p>Capital Gain: $${this.results.cash.gains.unrealizedCapitalGain.toLocaleString()}</p>
+            <p>Annual Cash Flow: $${this.results.cash.gains.annualCashFlow.toFixed(2)}</p>
+            <p>ROI: ${this.results.cash.gains.returnOnCapitalGain.toFixed(2)}%</p>
+            <p>Cash-on-Cash: ${this.results.cash.gains.cashOnCashReturn.toFixed(2)}%</p>
+        `;
+
+        // Operating Costs Breakdown
+        document.getElementById('operatingCostsBreakdown').innerHTML = `
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                    <p class="font-semibold">Vacancy (5%)</p>
+                    <p>$${this.results.conventional.cashFlow.operatingCosts.vacancy.toFixed(2)}/month</p>
+                </div>
+                <div>
+                    <p class="font-semibold">Maintenance (8%)</p>
+                    <p>$${this.results.conventional.cashFlow.operatingCosts.maintenance.toFixed(2)}/month</p>
+                </div>
+                <div>
+                    <p class="font-semibold">Property Tax</p>
+                    <p>$${this.results.conventional.cashFlow.operatingCosts.propertyTax.toFixed(2)}/month</p>
+                </div>
+                <div>
+                    <p class="font-semibold">HOA</p>
+                    <p>$${this.results.conventional.cashFlow.operatingCosts.hoa.toFixed(2)}/month</p>
+                </div>
+            </div>
+        `;
+    },
+
+    downloadResults() {
+        if (!this.results) return;
+
+        const csvContent = `Property Analysis Report
+
+Property Information
+Purchase Price,${this.results.conventional.mortgageInfo.purchasePrice}
+
+Conventional Financing Analysis
+Down Payment,${this.results.conventional.mortgageInfo.downPayment}
+Total Mortgage,${this.results.conventional.mortgageInfo.totalMortgage}
+Monthly Rent,${this.results.conventional.cashFlow.monthlyRent}
+Monthly Mortgage,${this.results.conventional.cashFlow.monthlyMortgage}
+Monthly Operating Costs,${Object.values(this.results.conventional.cashFlow.operatingCosts).reduce((a, b) => a + b, 0)}
+Net Monthly Cash Flow,${this.results.conventional.cashFlow.totalMonthly}
+Annual Cash Flow,${this.results.conventional.gains.annualCashFlow}
+Return on Capital Gain,${this.results.conventional.gains.returnOnCapitalGain}%
+Cash-on-Cash Return,${this.results.conventional.gains.cashOnCashReturn}%
+
+Cash Purchase Analysis
+Total Investment,${this.results.cash.mortgageInfo.totalInvestment}
+Monthly Rent,${this.results.cash.cashFlow.monthlyRent}
+Monthly Operating Costs,${Object.values(this.results.cash.cashFlow.operatingCosts).reduce((a, b) => a + b, 0)}
+Net Monthly Cash Flow,${this.results.cash.cashFlow.totalMonthly}
+Annual Cash Flow,${this.results.cash.gains.annualCashFlow}
+Return on Capital Gain,${this.results.cash.gains.returnOnCapitalGain}%
+Cash-on-Cash Return,${this.results.cash.gains.cashOnCashReturn}%
+
+Operating Costs Breakdown
+Vacancy (5%),${this.results.conventional.cashFlow.operatingCosts.vacancy}
+Maintenance (8%),${this.results.conventional.cashFlow.operatingCosts.maintenance}
+Property Tax,${this.results.conventional.cashFlow.operatingCosts.propertyTax}
+Property Insurance,${this.results.conventional.cashFlow.operatingCosts.propertyIns}
+HOA,${this.results.conventional.cashFlow.operatingCosts.hoa}`;
+
+        const blob = new Blob([csvContent], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'property-analysis.csv';
+        a.click();
+        window.URL.revokeObjectURL(url);
+    }
+};
+
+document.addEventListener('DOMContentLoaded', () => calculator.initialize());
+</script>
+</body>
+</html>

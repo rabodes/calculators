@@ -186,6 +186,55 @@ const calculator = {
         };
     },
 
+    calculateProjections() {
+        const data = this.getFormData();
+        const annualAppreciation = 0.03; // 3% annual appreciation
+        const annualRentIncrease = 0.02; // 2% annual rent increase
+        
+        let projections = [];
+        let currentValue = data.marketValue;
+        let currentRent = data.rentMonthly;
+        
+        for(let year = 1; year <= 5; year++) {
+            // Calculate new values
+            currentValue *= (1 + annualAppreciation);
+            currentRent *= (1 + annualRentIncrease);
+            
+            // Calculate unrealized gain
+            const unrealizedGain = currentValue - data.purchasePrice;
+            
+            // Calculate operating costs with increased rent
+            const operatingCosts = this.calculateOperatingCosts({
+                ...data,
+                rentMonthly: currentRent
+            }, currentRent);
+            
+            const totalMonthlyOperatingCosts = Object.values(operatingCosts).reduce((a, b) => a + b, 0);
+            
+            // Calculate cash flows
+            const conventionalMortgage = data.purchasePrice - (data.purchasePrice * 0.30);
+            const monthlyMortgage = this.calculateMonthlyMortgage(conventionalMortgage, data.interestRate, 30);
+            const conventionalCashFlow = currentRent - monthlyMortgage - totalMonthlyOperatingCosts;
+            const cashPurchaseCashFlow = currentRent - totalMonthlyOperatingCosts;
+            
+            projections.push({
+                year,
+                marketValue: currentValue,
+                monthlyRent: currentRent,
+                unrealizedGain,
+                conventionalCashFlow: conventionalCashFlow * 12, // Annual
+                cashPurchaseCashFlow: cashPurchaseCashFlow * 12, // Annual
+                operatingCosts,
+                roi: (unrealizedGain / data.purchasePrice) * 100,
+                conventionalCashOnCash: (conventionalCashFlow * 12) / (data.purchasePrice * 0.30) * 100,
+                cashPurchaseCashOnCash: (cashPurchaseCashFlow * 12) / data.purchasePrice * 100
+            });
+        }
+        
+        return projections;
+    },
+
+
     calculateResults() {
         console.log("Calculating results...");
         const data = this.getFormData();
@@ -256,6 +305,7 @@ const calculator = {
         };
 
         this.displayResults();
+        this.displayProjections();
     },
 
     displayResults() {
@@ -326,6 +376,45 @@ const calculator = {
                 </div>
             </div>
         `;
+    },
+    displayProjections() {
+        const projections = this.calculateProjections();
+        const projectionTable = document.createElement('div');
+        projectionTable.className = 'mt-8';
+        
+        projectionTable.innerHTML = `
+            <h2 class="text-xl font-bold mb-4">5-Year Projections</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Year</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Market Value</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monthly Rent</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unrealized Gain</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Annual Cash Flow (Conv.)</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Annual Cash Flow (Cash)</th>
+                            <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ROI</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${projections.map(p => `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap">Year ${p.year}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">$${p.marketValue.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">$${p.monthlyRent.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">$${p.unrealizedGain.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">$${p.conventionalCashFlow.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">$${p.cashPurchaseCashFlow.toLocaleString(undefined, {maximumFractionDigits: 0})}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">${p.roi.toFixed(2)}%</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        document.getElementById('results').appendChild(projectionTable);
     },
 
     downloadResults() {

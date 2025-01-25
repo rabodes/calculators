@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Detailed Route Map</title>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <style>
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+        #map { width: 100%; height: 100vh; }
+        .marker-label {
+            background: white;
+            border: 2px solid #333;
+            border-radius: 5px;
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            position: absolute;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .katy-marker { 
+            border-color: #c0392b; 
+            color: #c0392b; 
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .richmond-marker { 
+            border-color: #2980b9; 
+            color: #2980b9;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        .start-marker { 
+            border-color: #27ae60; 
+            color: #27ae60;
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        const map = L.map('map').setView([29.6156, -95.7417], 11);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        const locations = {
+            start: {
+                coord: [29.55664269999999, -95.5711741],
+                label: "Start/End: 4303 Roundtree Lane"
+            },
+            katy: [
+                {coord: [29.6999744, -95.82150159999999], label: "K1: 25719 Jewel Springs Lane"},
+                {coord: [29.730093, -95.8290822], label: "K2: 26622 Boulder Cove Court"},
+                {coord: [29.7489828, -95.82685289999999], label: "K3: 2318 Fern Bend Lane"},
+                {coord: [29.7567182, -95.83078669999999], label: "K4: 1015 Longdraw Drive"},
+                {coord: [29.7292523, -95.7591838], label: "K5: 22415 Merabrook Drive"}
+            ],
+            richmond: [
+                {coord: [29.54158589999999, -95.69587609999999], label: "R1: 6739 Kearney Drive"},
+                {coord: [29.5463259, -95.71043569999999], label: "R2: 510 Taskwood Drive"},
+                {coord: [29.5007735, -95.7622043], label: "R3: 7107 Sunrise Hill Lane"},
+                {coord: [29.4985157, -95.7646561], label: "R4: 7103 Lilac Manor Lane"},
+                {coord: [29.5692252, -95.7355675], label: "R5: 23323 Darst Field Trail"},
+                {coord: [29.6436609, -95.738117], label: "R6: 3523 Timothy Lane"},
+                {coord: [29.634289, -95.815344], label: "R7: 4823 Lucky Fawn Lane"},
+                {coord: [29.66464969999999, -95.8285023], label: "R8: 9415 Spring Fawn Drive"},
+                {coord: [29.6880322, -95.8255674], label: "R9: 25915 Palmdale Estate Drive"},
+                {coord: [29.6859725, -95.8219397], label: "R10: 25643 Winford Estate Drive"},
+                {coord: [29.6917618, -95.76303209999999], label: "R11: 7022 Bossut Drive"},
+                {coord: [29.7002371, -95.7533454], label: "R12: 7107 Creeks End Boulevard"},
+                {coord: [29.6885366, -95.72461430000001], label: "R13: 7803 Collina Landing Trail"}
+            ]
+        };
+
+        // Create custom icon for start point
+        const startIcon = L.divIcon({
+            className: 'marker-label start-marker',
+            html: locations.start.label
+        });
+        L.marker(locations.start.coord, {icon: startIcon}).addTo(map);
+
+        // Create Katy route markers and line
+        const katyCoords = locations.katy.map(loc => loc.coord);
+        const katyRoute = [locations.start.coord, ...katyCoords, locations.start.coord];
+        L.polyline(katyRoute, {color: '#c0392b', weight: 3, opacity: 0.8}).addTo(map);
+
+        locations.katy.forEach(loc => {
+            const icon = L.divIcon({
+                className: 'marker-label katy-marker',
+                html: loc.label
+            });
+            L.marker(loc.coord, {icon: icon}).addTo(map);
+        });
+
+        // Create Richmond route markers and line
+        const richmondCoords = locations.richmond.map(loc => loc.coord);
+        const richmondRoute = [locations.start.coord, ...richmondCoords, locations.start.coord];
+        L.polyline(richmondRoute, {color: '#2980b9', weight: 3, opacity: 0.8}).addTo(map);
+
+        locations.richmond.forEach(loc => {
+            const icon = L.divIcon({
+                className: 'marker-label richmond-marker',
+                html: loc.label
+            });
+            L.marker(loc.coord, {icon: icon}).addTo(map);
+        });
+    </script>
+</body>
+</html>
